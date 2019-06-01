@@ -46,12 +46,6 @@ class Pong {
     // Starting Position of ball/creation of the ball. Initializing in class.
     this.ball = new Ball
 
-    this.ball.pos.x = 100;
-    this.ball.pos.y = 50;
-
-    this.ball.vel.x = 100;
-    this.ball.vel.y = 100;
-
     // Players array
     this.player = [
       new Player,
@@ -75,8 +69,17 @@ class Pong {
       requestAnimationFrame(callBack);
     }
     callBack();
+
+    this.reset();
   }
-  // 
+
+  collide(player, ball) {
+    if(player.left < ball.right && player.right > ball.left &&
+      player.top < ball.bottom && player.bottom > ball.top) {
+      ball.vel.x = -ball.vel.x
+      }
+  }
+  // function to draw ball and players on screen
   draw() {
     // This creates the black square that is the 'pong area'
     this._context.fillStyle = '#000';
@@ -92,6 +95,13 @@ class Pong {
     this._context.fillRect(rect.left, rect.top, 
                             rect.size.x, rect.size.y);
   }
+  reset() {
+    this.ball.pos.x = 100;
+    this.ball.pos.y = 50;
+
+    this.ball.vel.x = 100;
+    this.ball.vel.y = 100;
+  }
     // dt = delta time. This function means movement of the ball is relative to the
     // time difference.
   update(dt) {
@@ -100,6 +110,16 @@ class Pong {
 
     //To stop ball from flying out of the box
     if(this.ball.left < 0 || this.ball.right > this._canvas.width) {
+      const playerId = this.ball.vel.x < 0 | 0;
+      // Line above is the same as line below.
+      // if (this.ball.vel.x < 0) {
+      //   playedId = 1;
+      // } else {
+      //   player = 0;
+      // }
+      this.player[playerId].score++;
+      this.reset();
+
       this.ball.vel.x = - this.ball.vel.x;
     }
     if(this.ball.top < 0 || this.ball.bottom > this._canvas.height) {
@@ -108,6 +128,8 @@ class Pong {
     // This makes player 2[1] follow the y axis of the ball. Meaning it will stay at the same level 
     // on the top to bottom axis.
     this.player[1].pos.y = this.ball.pos.y;
+
+    this.player.forEach(player => this.collide(player, this.ball))
 
     this.draw()
   }
