@@ -57,6 +57,12 @@ class Pong {
       new Player,
       new Player,
     ];
+    // Movies player 1[0] and 2[1] out into the middle of the area
+    this.player[0].pos.x = 40;
+    this.player[1].pos.x = this._canvas.width - 40;
+    this.player.forEach(player => {
+      player.pos.y = this._canvas.height / 2;
+    })
 
     // ms = milliseconds. /1000 converts to seconds. This function is calculating the time
     // difference so the ball can register pace. 
@@ -83,7 +89,7 @@ class Pong {
   }
   drawRect(rect) {
     this._context.fillStyle = '#fff';
-    this._context.fillRect(rect.pos.x, rect.pos.y, 
+    this._context.fillRect(rect.left, rect.top, 
                             rect.size.x, rect.size.y);
   }
     // dt = delta time. This function means movement of the ball is relative to the
@@ -99,6 +105,10 @@ class Pong {
     if(this.ball.top < 0 || this.ball.bottom > this._canvas.height) {
       this.ball.vel.y = -this.ball.vel.y;
     }
+    // This makes player 2[1] follow the y axis of the ball. Meaning it will stay at the same level 
+    // on the top to bottom axis.
+    this.player[1].pos.y = this.ball.pos.y;
+
     this.draw()
   }
 }
@@ -108,3 +118,7 @@ const canvas = document.getElementById('pong');
 
 // Initializing a new pong class/new game
 const pong = new Pong(canvas)
+
+canvas.addEventListener('mousemove',event => {
+  pong.player[0].pos.y = event.offsetY;
+})
