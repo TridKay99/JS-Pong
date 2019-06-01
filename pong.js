@@ -11,50 +11,100 @@ class Rect {
     this.pos = new Vec
     this.size = new Vec(w, h)
   }
+  get left() {
+    return this.pos.x - this.size.x / 2;
+  }
+  get right() {
+    return this.pos.x + this.size.x / 2;
+  }
+  get top() {
+    return this.pos.y - this.size.y / 2;
+  }
+  get bottom() {
+    return this.pos.y - this.size.y / 2;
+  }
 }
-
+// Creating ball class so we can create the ball
 class Ball extends Rect {
   constructor() {
     super(10,10);
     this.vel = new Vec;
   }
 }
+// Creating player class so we can create players
+class Player extends Rect {
+  constructor() {
+    super(20,100);
+    this.score = 0;
+  }
+}
+
+class Pong {
+  constructor(canvas) {
+    this._canvas = canvas;
+    this._context = canvas.getContext('2d');
+    // Starting Position of ball/creation of the ball. Initializing in class.
+    this.ball = new Ball
+
+    this.ball.pos.x = 100;
+    this.ball.pos.y = 50;
+
+    this.ball.vel.x = 100;
+    this.ball.vel.y = 100;
+
+    // Players array
+    this.player = [
+      new Player,
+      new Player,
+    ];
+
+    // ms = milliseconds. /1000 converts to seconds. This function is calculating the time
+    // difference so the ball can register pace. 
+    let lastTime;
+    const callBack = (ms) => {
+      if(lastTime) {
+        this.update((ms - lastTime) / 1000);
+      }
+      lastTime = ms;
+      requestAnimationFrame(callBack);
+    }
+    callBack();
+  }
+  // 
+  draw() {
+    // This creates the black square that is the 'pong area'
+    this._context.fillStyle = '#000';
+    this._context.fillRect(0, 0, 
+        this._canvas.width, this._canvas.height);
+      
+    this.drawRect(this.ball);
+    // Drawing both the players in the pong 'arena'
+    this.player.forEach(player => this.drawRect(player));
+  }
+  drawRect(rect) {
+    this._context.fillStyle = '#fff';
+    this._context.fillRect(rect.pos.x, rect.pos.y, 
+                            rect.size.x, rect.size.y);
+  }
+    // dt = delta time. This function means movement of the ball is relative to the
+    // time difference.
+  update(dt) {
+    this.ball.pos.x += this.ball.vel.x * dt;
+    this.ball.pos.y += this.ball.vel.y * dt;
+
+    //To stop ball from flying out of the box
+    if(this.ball.left < 0 || this.ball.right > this._canvas.width) {
+      this.ball.vel.x = - this.ball.vel.x;
+    }
+    if(this.ball.top < 0 || this.ball.bottom > this._canvas.height) {
+      this.ball.vel.y = -this.ball.vel.y;
+    }
+    this.draw()
+  }
+}
 
 // Refering to 'pong' in the HTML
 const canvas = document.getElementById('pong');
-const context = canvas.getContext('2d');
 
-// Created the ball and choosing its x and y positiion to move around the 'pong arena'
-const ball = new Ball
-ball.pos.x = 100;
-ball.pos.y = 50;
-
-ball.vel.x = 100;
-ball.vel.y = 100;
-// ms = milliseconds. /1000 converts to seconds. This function is calculating the time
-// difference so the ball can register pace. 
-let lastTime;
-const callBack = (ms) => {
-  if(lastTime) {
-    update((ms - lastTime) / 1000);
-  }
-  lastTime = ms;
-  requestAnimationFrame(callBack);
-}
-
-// dt = delta time. This function means movement of the ball is relative to the
-// time difference.
-const update = (dt) => {
-  ball.pos.x += ball.vel.x * dt;
-  ball.pos.y += ball.vel.y * dt;
-
-
-// This creates the black square that is the 'pong area'
-  context.fillStyle = '#000';
-  context.fillRect(0, 0, canvas.width, canvas.height);
-
-  context.fillStyle = '#fff';
-  context.fillRect(ball.pos.x, ball.pos.y, ball.size.x, ball.size.y);
-}
-
-callBack()
+// Initializing a new pong class/new game
+const pong = new Pong(canvas)
